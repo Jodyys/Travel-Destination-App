@@ -32,9 +32,11 @@ npm start
 docker compose up -d
 
 ## Screenshots
-
+Dashboard
 ![Dashboard](docs/images/dashboard.png)
 
+Login Page
 ![Login](docs/images/login-page.png)
 
+Mybooking
 ![Mybooking](docs/images/mybooking.png)
