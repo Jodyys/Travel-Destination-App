@@ -1,0 +1,47 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: travel-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: traveldb
+      POSTGRES_USER: travel
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - travel-network
+
+  backend:
+    build: ./backend
+    container_name: travel-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - travel-network
+
+  frontend:
+    build: ./frontend
+    container_name: travel-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - travel-network
+
+volumes:
+  postgres-data:
+
+networks:
+  travel-network:
+    driver: bridge
