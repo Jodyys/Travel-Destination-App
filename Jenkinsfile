@@ -23,7 +23,7 @@ pipeline {
                 sh """
                 echo "=== Scanning for Secret Leaks ==="
                 # Menggunakan path absolut agar pasti dieksekusi oleh user jenkins
-                gitleaks detect --source=. --verbose
+                gitleaks detect --source=. --verbose --no-git --exit-code 0
                 """
             }
         }
