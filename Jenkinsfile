@@ -18,6 +18,18 @@ pipeline {
             }
         }
 
+        stage('SCA Scan Trivy') {
+            steps {
+                sh """
+                echo "=== Task 1: SCA Scan Backend Dependencies ==="
+                trivy fs --severity HIGH,CRITICAL backend/
+
+                echo "=== Task 2: SCA Scan Frontend Dependencies ==="
+                trivy fs --severity HIGH,CRITICAL frontend/
+                """
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 sh """
@@ -30,7 +42,7 @@ pipeline {
             }
         }
 
-        stage('Security Scan Trivy') {
+        stage('Security Scan Image Trivy') {
             steps {
                 sh """
                 echo "=== Task 1: Scanning Backend Image ==="
