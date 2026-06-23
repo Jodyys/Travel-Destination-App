@@ -18,51 +18,27 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images (Bareng)') {
-            parallel {
-                stage('Build Backend') {
-                    steps {
-                        sh """
-                        echo "=== Building Backend Image ==="
-                        docker build \
-                          -t ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER} \
-                          -t ${DOCKER_USER}/${IMAGE_BACKEND}:latest \
-                          backend
-                        """
-                    }
-                }
-                stage('Build Frontend') {
-                    steps {
-                        sh """
-                        echo "=== Building Frontend Image ==="
-                        docker build \
-                          -t ${DOCKER_USER}/${IMAGE_FRONTEND}:v${env.BUILD_NUMBER} \
-                          -t ${DOCKER_USER}/${IMAGE_FRONTEND}:latest \
-                          frontend
-                        """
-                    }
-                }
+        stage('Build Docker Images') {
+            steps {
+                sh """
+                echo "=== Task 1: Building Backend Image ==="
+                docker build -t ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER} -t ${DOCKER_USER}/${IMAGE_BACKEND}:latest backend
+
+                echo "=== Task 2: Building Frontend Image ==="
+                docker build -t ${DOCKER_USER}/${IMAGE_FRONTEND}:v${env.BUILD_NUMBER} -t ${DOCKER_USER}/${IMAGE_FRONTEND}:latest frontend
+                """
             }
         }
 
-        stage('Security Scan Trivy (Bareng)') {
-            parallel {
-                stage('Scan Backend') {
-                    steps {
-                        sh """
-                        echo "=== Scanning Backend Image ==="
-                        trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER}
-                        """
-                    }
-                }
-                stage('Scan Frontend') {
-                    steps {
-                        sh """
-                        echo "=== Scanning Frontend Image ==="
-                        trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_FRONTEND}:v${env.BUILD_NUMBER}
-                        """
-                    }
-                }
+        stage('Security Scan Trivy') {
+            steps {
+                sh """
+                echo "=== Task 1: Scanning Backend Image ==="
+                trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER}
+
+                echo "=== Task 2: Scanning Frontend Image ==="
+                trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_FRONTEND}:v${env.BUILD_NUMBER}
+                """
             }
         }
 
