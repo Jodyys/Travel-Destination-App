@@ -18,12 +18,12 @@ pipeline {
             }
         }
 
-        stage('Secret Scanning (Gitleaks)') {
+        stage('Secret Scanning Gitleaks') {
             steps {
                 sh """
                 echo "=== Scanning for Secret Leaks ==="
                 # Menggunakan path absolut agar pasti dieksekusi oleh user jenkins
-                /usr/local/bin/gitleaks detect --source=. --verbose
+                /usr/bin/gitleaks detect --source=. --verbose
                 """
             }
         }
