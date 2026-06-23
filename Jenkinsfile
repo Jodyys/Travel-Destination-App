@@ -18,9 +18,9 @@ pipeline {
             }
         }
 
-        stage('Build & Scan Images') {
+        stage('Build Docker Images (Bareng)') {
             parallel {
-                stage('Backend: Build & Scan') {
+                stage('Build Backend') {
                     steps {
                         sh """
                         echo "=== Building Backend Image ==="
@@ -28,13 +28,10 @@ pipeline {
                           -t ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER} \
                           -t ${DOCKER_USER}/${IMAGE_BACKEND}:latest \
                           backend
-
-                        echo "=== Scanning Backend Image with Trivy ==="
-                        trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER}
                         """
                     }
                 }
-                stage('Frontend: Build & Scan') {
+                stage('Build Frontend') {
                     steps {
                         sh """
                         echo "=== Building Frontend Image ==="
@@ -42,8 +39,26 @@ pipeline {
                           -t ${DOCKER_USER}/${IMAGE_FRONTEND}:v${env.BUILD_NUMBER} \
                           -t ${DOCKER_USER}/${IMAGE_FRONTEND}:latest \
                           frontend
+                        """
+                    }
+                }
+            }
+        }
 
-                        echo "=== Scanning Frontend Image with Trivy ==="
+        stage('Security Scan Trivy (Bareng)') {
+            parallel {
+                stage('Scan Backend') {
+                    steps {
+                        sh """
+                        echo "=== Scanning Backend Image ==="
+                        trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_BACKEND}:v${env.BUILD_NUMBER}
+                        """
+                    }
+                }
+                stage('Scan Frontend') {
+                    steps {
+                        sh """
+                        echo "=== Scanning Frontend Image ==="
                         trivy image --severity HIGH,CRITICAL ${DOCKER_USER}/${IMAGE_FRONTEND}:v${env.BUILD_NUMBER}
                         """
                     }
