@@ -18,6 +18,16 @@ pipeline {
             }
         }
 
+        stage('Secret Scanning (Gitleaks)') {
+            steps {
+                sh """
+                echo "=== Scanning for Secret Leaks ==="
+                # Memindai seluruh workspace untuk mencari kebocoran kredensial/token
+                gitleaks detect --source=. --verbose
+                """
+            }
+        }
+
         stage('SCA Scan Trivy') {
             steps {
                 sh """
