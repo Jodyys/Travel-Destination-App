@@ -22,8 +22,8 @@ pipeline {
             steps {
                 sh """
                 echo "=== Scanning for Secret Leaks ==="
-                # Memindai seluruh workspace untuk mencari kebocoran kredensial/token
-                gitleaks detect --source=. --verbose
+                # Menggunakan path absolut agar pasti dieksekusi oleh user jenkins
+                /usr/local/bin/gitleaks detect --source=. --verbose
                 """
             }
         }
