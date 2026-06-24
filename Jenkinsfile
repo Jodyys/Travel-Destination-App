@@ -18,15 +18,27 @@ pipeline {
             }
         }
 
-        stage('Secret Scanning Gitleaks') {
-            steps {
-                sh """
-                echo "=== Scanning for Secret Leaks ==="
-                # Menggunakan path absolut agar pasti dieksekusi oleh user jenkins
-                gitleaks detect --source=. --verbose --no-git --exit-code 0
-                """
-            }
+    stage('Secret Scanning Gitleaks') {
+        steps {
+            sh """
+            echo "=== Scanning for Secret Leaks ==="
+        
+            # 1. Jalankan gitleaks dengan output terpisah ke file JSON
+            # 2. Hapus --no-git agar gitleaks bisa membaca history commit (lebih akurat)
+            # 3. Tetap gunakan --exit-code 0 jika kamu tidak ingin memutus build saat ada leak
+        
+            gitleaks detect --source=. --verbose --report-path=gitleaks-result.json --exit-code 0
+        
+            echo "=== Scan Selesai, Hasil disimpan di gitleaks-result.json ==="
+            """
+}
+    post {
+        always {
+            // Mengarsipkan hasil scan agar bisa kamu download/baca di Jenkins Dashboard
+            archiveArtifacts artifacts: 'gitleaks-result.json', allowEmptyArchive: true
         }
+    }
+}
 
         stage('SCA Scan Trivy') {
             steps {
