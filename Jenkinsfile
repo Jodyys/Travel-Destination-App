@@ -24,7 +24,7 @@ pipeline {
                     // Mengambil path tools dari Jenkins global tool configuration
                     def scannerHome = tool 'SonarScanner'
                     
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('SonarQube-Server') {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=Travel-Destination-Hub \
