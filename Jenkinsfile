@@ -18,12 +18,13 @@ pipeline {
             }
         }
     
-        stage('SonarQube Scan') {
+        // === SEMUA SCANNING DISATUKAN DI SINI ===
+        stage('Code & Security Analysis') {
             steps {
+                // 1. SonarQube Scan & Quality Gate
                 script {
-                    // Mengambil path tools dari Jenkins global tool configuration
+                    echo "=== Running SonarQube Scan ==="
                     def scannerHome = tool 'SonarScanner'
-                    
                     withSonarQubeEnv('SonarQube-Server') {
                         sh """
                         ${scannerHome}/bin/sonar-scanner \
@@ -33,31 +34,20 @@ pipeline {
                         """
                     }
                 }
-            }
-        }
-
-        stage('Sonarqube Quality Gate') {
-            steps {
+                echo "=== Checking SonarQube Quality Gate ==="
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
-            }
-        }
 
-        stage('Secret Scanning Gitleaks') {
-            steps {
-                echo "=== Scanning for Secret Leaks ==="
+                // 2. Secret Scanning (Gitleaks)
+                echo "=== Scanning for Secret Leaks (Gitleaks) ==="
                 sh 'gitleaks detect --source=. --verbose --report-path=gitleaks-result.json --exit-code 0 || true'
-                echo "=== Scan Selesai, Hasil disimpan di gitleaks-result.json ==="
-            }
-        }
-
-        stage('SCA Scan Trivy') {
-            steps {
-                echo "=== Task 1: SCA Scan Backend Dependencies ==="
+                
+                // 3. SCA Scan (Trivy FS)
+                echo "=== SCA Scan Backend Dependencies ==="
                 sh 'trivy fs --severity HIGH,CRITICAL backend/'
 
-                echo "=== Task 2: SCA Scan Frontend Dependencies ==="
+                echo "=== SCA Scan Frontend Dependencies ==="
                 sh 'trivy fs --severity HIGH,CRITICAL frontend/'
             }
         }
