@@ -7,11 +7,6 @@ pipeline {
         IMAGE_FRONTEND = "travelapp-frontend"
     }
 
-    tools {
-        // Menggunakan tipe data 'sonarRunner' yang sesuai dengan sistem Jenkins Anda
-        sonarRunner 'SonarQube-Scanner'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -25,9 +20,18 @@ pipeline {
     
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    // Menjalankan biner scanner yang sudah didefinisikan secara global
-                    sh 'sonar-scanner -Dsonar.projectKey=travel-app -Dsonar.sources=.'
+                script {
+                    // Mengambil path tools dari Jenkins global tool configuration
+                    def scannerHome = tool 'SonarScanner'
+                    
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=Travel-Destination-Hub \
+                        -Dsonar.projectName="Travel Destination Hub" \
+                        -Dsonar.sources=.
+                        """
+                    }
                 }
             }
         }
