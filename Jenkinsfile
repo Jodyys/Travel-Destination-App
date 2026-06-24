@@ -18,37 +18,45 @@ pipeline {
             }
         }
     
-        // === SEMUA SCANNING DISATUKAN DI SINI ===
-        stage('Code & Security Analysis') {
-            steps {
-                // 1. SonarQube Scan & Quality Gate
-                script {
-                    echo "=== Running SonarQube Scan ==="
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube-Server') {
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=Travel-Destination-Hub \
-                        -Dsonar.projectName="Travel Destination Hub" \
-                        -Dsonar.sources=.
-                        """
+        stage('Security & Code Scans') {
+            parallel {
+                stage('SonarQube Scanning') {
+                    steps {
+                        script {
+                            echo "=== Running SonarQube Scan ==="
+                            def scannerHome = tool 'SonarScanner'
+                            withSonarQubeEnv('SonarQube-Server') {
+                                sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=Travel-Destination-Hub \
+                                -Dsonar.projectName="Travel Destination Hub" \
+                                -Dsonar.sources=.
+                                """
+                            }
+                        }
+                        echo "=== Checking SonarQube Quality Gate ==="
+                        timeout(time: 5, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
                     }
                 }
-                echo "=== Checking SonarQube Quality Gate ==="
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+
+                stage('Secret Gitleaks Scanning') {
+                    steps {
+                        echo "=== Scanning for Secret Leaks (Gitleaks) ==="
+                        sh 'gitleaks detect --source=. --verbose --report-path=gitleaks-result.json --exit-code 0 || true'
+                    }
                 }
 
-                // 2. Secret Scanning (Gitleaks)
-                echo "=== Scanning for Secret Leaks (Gitleaks) ==="
-                sh 'gitleaks detect --source=. --verbose --report-path=gitleaks-result.json --exit-code 0 || true'
-                
-                // 3. SCA Scan (Trivy FS)
-                echo "=== SCA Scan Backend Dependencies ==="
-                sh 'trivy fs --severity HIGH,CRITICAL backend/'
+                stage('SCA Trivy Scanning') {
+                    steps {
+                        echo "=== SCA Scan Backend Dependencies ==="
+                        sh 'trivy fs --severity HIGH,CRITICAL backend/'
 
-                echo "=== SCA Scan Frontend Dependencies ==="
-                sh 'trivy fs --severity HIGH,CRITICAL frontend/'
+                        echo "=== SCA Scan Frontend Dependencies ==="
+                        sh 'trivy fs --severity HIGH,CRITICAL frontend/'
+                    }
+                }
             }
         }
 
