@@ -8,8 +8,8 @@ pipeline {
     }
 
     tools {
-        // Menggunakan SonarQube Scanner yang sudah di-install di Jenkins Tools
-        sonarScanner 'SonarQube-Scanner'
+        // Menggunakan tipe data 'sonarRunner' yang sesuai dengan sistem Jenkins Anda
+        sonarRunner 'SonarQube-Scanner'
     }
 
     stages {
@@ -25,9 +25,8 @@ pipeline {
     
         stage('SonarQube Scan') {
             steps {
-                // 'SonarQube' di bawah ini harus sama dengan nama server di Manage Jenkins -> System
                 withSonarQubeEnv('SonarQube') {
-                    // Cukup panggil binari scanner. Host URL & Token otomatis disuntikkan oleh Jenkins.
+                    // Menjalankan biner scanner yang sudah didefinisikan secara global
                     sh 'sonar-scanner -Dsonar.projectKey=travel-app -Dsonar.sources=.'
                 }
             }
@@ -35,7 +34,6 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                // Menunggu status kelulusan (pass/fail) dari dashboard SonarQube
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
@@ -45,7 +43,6 @@ pipeline {
         stage('Secret Scanning Gitleaks') {
             steps {
                 echo "=== Scanning for Secret Leaks ==="
-                // Ditambahkan || true agar Jenkins tidak langsung stop jika gitleaks menemukan kecacatan
                 sh 'gitleaks detect --source=. --verbose --report-path=gitleaks-result.json --exit-code 0 || true'
                 echo "=== Scan Selesai, Hasil disimpan di gitleaks-result.json ==="
             }
