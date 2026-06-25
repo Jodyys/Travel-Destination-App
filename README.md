@@ -147,3 +147,7 @@ Frontend
 - Continuous Deployment to K3s
 - GitOps with ArgoCD
 - OWASP ZAP DAST Integration
+
+## Author
+
+**Devin Jodiyudanto**
