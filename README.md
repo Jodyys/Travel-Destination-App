@@ -142,6 +142,10 @@ Frontend
 
 ---
 
+### Tampilan Aplikasi
+
+![Dashboard](docs/images/dashboard.png)
+
 ## Future Improvements
 
 - Continuous Deployment to K3s
