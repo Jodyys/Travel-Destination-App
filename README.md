@@ -98,19 +98,19 @@ Post Actions
 
 ### Jenkins Pipeline
 
-![Jenkins Pipeline](docs/images/CI-pipeline.png)
+![Jenkins Pipeline](docs/images/Jenkins-CI.png)
 
 ---
 
 ### SonarQube Dashboard
 
-![SonarQube Dashboard](docs/images/sonarqubeDashboard.png)
+![SonarQube Dashboard](docs/images/SonarqubeDashboard.png)
 
 ---
 
 ### SonarQube Quality Gate
 
-![Quality Gate](docs/images/quality-gate.png)
+![Quality Gate](docs/images/Quality-Gate.png)
 
 ---
 
