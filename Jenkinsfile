@@ -20,7 +20,7 @@ pipeline {
     
         stage('Security & Code Scans') {
             parallel {
-                stage('SonarQube Scanning') {
+                stage('SAST - SonarQube') {
                     steps {
                         script {
                             echo "=== Running SonarQube Scan ==="
@@ -41,14 +41,14 @@ pipeline {
                     }
                 }
 
-                stage('Secret Gitleaks Scanning') {
+                stage('Secret Gitleaks Scan') {
                     steps {
                         echo "=== Scanning for Secret Leaks (Gitleaks) ==="
                         sh 'gitleaks detect --source=. --verbose --report-path=gitleaks-result.json --exit-code 0 || true'
                     }
                 }
 
-                stage('SCA Trivy Scanning') {
+                stage('SCA Trivy FS') {
                     steps {
                         echo "=== SCA Scan Backend Dependencies ==="
                         sh 'trivy fs --severity HIGH,CRITICAL backend/'
